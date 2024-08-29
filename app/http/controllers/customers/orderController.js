@@ -4,29 +4,34 @@ const moment = require("moment");
 function orderController() {
   return {
     store(req, res) {
-      //validate request
+      // Validate request
       const { phone, address } = req.body;
       if (!phone || !address) {
         req.flash("error", "All fields are required");
         return res.redirect("/cart");
       }
+    
       const order = new Order({
         customerId: req.user._id,
         items: req.session.cart.items,
         phone,
         address,
-      })
+      });
+    
       order
         .save()
-        .then((result) => {
-          Order.populate('result',{path:'customerId'},(err,placeOrder)=>{
+        .then(async (result) => {
+          try {
+            const placeOrder = await Order.populate(result, { path: 'customerId' });
             req.flash("success", "Order placed successfully");
-          delete req.session.cart;
-          const eventEmitter=req.app.get('eventEmitter');
-          eventEmitter.emit('orderPlaced',result)
-          return res.redirect("/customer/orders");
-          })
-          
+            delete req.session.cart;
+            const eventEmitter = req.app.get('eventEmitter');
+            eventEmitter.emit('orderPlaced', result);
+            return res.redirect("/customer/orders");
+          } catch (err) {
+            req.flash("error", "Something went wrong during order placement");
+            return res.redirect("/cart");
+          }
         })
         .catch((err) => {
           req.flash("error", "Something went wrong");
