@@ -12,7 +12,7 @@ const MongoDbStore = require("connect-mongo")
 const passport = require("passport")
 const Emitter=require('events')
 //Database connection
-const url = "mongodb://localhost/pizzas";
+const url = "mongodb+srv://vanshikagarg819:E2qWyP7u5VO6Siu2@cluster0.afjgd0y.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(url, {
   useNewUrlParser: true,
